@@ -1,5 +1,16 @@
-sector,project_name,bhk_type,available_label,price_raw,price_semi_furnished,price_fully_furnished,notes
-Sector 70,Pyramid Altia,2BHK,5-6 units,85L-90L,95L-1Cr,1.05Cr-1.1Cr,South facing options available
-Sector 70,Pyramid Altia,3BHK,3-4 units,1.2Cr-1.3Cr,1.35Cr-1.45Cr,1.5Cr-1.6Cr,Corner units have extra balcony
-Sector 70,Pyramid Altia,4BHK,1-2 units,1.8Cr-1.9Cr,1.95Cr-2.05Cr,2.1Cr-2.2Cr,"Penthouse-style, limited stock"
-Sector 69,Some Other Project,2BHK,4-5 units,80L-85L,88L-93L,98L-1.05Cr,
+originalName,newName,folderPath,configuration,furnishing,sector,society,price
+1BHK Semi furnished Sec. 45,"1 BHK Semi-Furnished - Sector 45, 15-18k","H:\All Properties Data\All Data\1 BHK Semi-Furnished - Sector 45, 15-18k",1 BHK,Semi-Furnished,Sector 45,,15-18k
+2&3BHK Fully furnished Sec. 36A,"2 & 3 BHK Fully Furnished - Sector 36A, 35-45k","H:\All Properties Data\All Data\2 & 3 BHK Fully Furnished - Sector 36A, 35-45k",2 & 3 BHK,Fully Furnished,Sector 36A,,35-45k
+2BHK Fully Furnished 30-32K,2 BHK Fully Furnished - ₹30-32K,H:\All Properties Data\All Data\2 BHK Fully Furnished - ₹30-32K,2 BHK,Fully Furnished,,,₹30-32K
+2BHK Fully Furnished Pyramid Fusion Homes Sec. 70A 33K,"2 BHK Fully Furnished - Pyramid Fusion Homes, Sector 70A, ₹33K","H:\All Properties Data\All Data\2 BHK Fully Furnished - Pyramid Fusion Homes, Sector 70A, ₹33K",2 BHK,Fully Furnished,Sector 70A,Pyramid Fusion Homes,₹33K
+2BHK Fully Furnished Sec 49 (22K),"2 BHK Fully Furnished - Sector 49, ₹22K","H:\All Properties Data\All Data\2 BHK Fully Furnished - Sector 49, ₹22K",2 BHK,Fully Furnished,Sector 49,,₹22K
+2BHK Fully Furnished Sec 70 Pyramid Urban,"2 BHK Fully Furnished - Pyramid Urban, Sector 70","H:\All Properties Data\All Data\2 BHK Fully Furnished - Pyramid Urban, Sector 70",2 BHK,Fully Furnished,Sector 70,Pyramid Urban,
+2BHK Fully Furnished Sec. 67,2 BHK Fully Furnished - Sector 67,H:\All Properties Data\All Data\2 BHK Fully Furnished - Sector 67,2 BHK,Fully Furnished,Sector 67,,
+3BHK Fully Furnished,3 BHK Fully Furnished,H:\All Properties Data\All Data\3 BHK Fully Furnished,3 BHK,Fully Furnished,,,
+3BHK Fully Furnished Sec. 71 Trehan Luxury Floors,"3 BHK Fully Furnished - Trehan Luxury Floors, Sector 71","H:\All Properties Data\All Data\3 BHK Fully Furnished - Trehan Luxury Floors, Sector 71",3 BHK,Fully Furnished,Sector 71,Trehan Luxury Floors,
+3BHK Fully Furnished Tulip Voilet Sec 69 (60K),"3 BHK Fully Furnished - Tulip Voilet, Sector 69, ₹60K","H:\All Properties Data\All Data\3 BHK Fully Furnished - Tulip Voilet, Sector 69, ₹60K",3 BHK,Fully Furnished,Sector 69,Tulip Voilet,₹60K
+3BHK Semi Furnished,3 BHK Semi-Furnished,H:\All Properties Data\All Data\3 BHK Semi-Furnished,3 BHK,Semi-Furnished,,,
+3BHK Semi-Furnished DLF Alameda Sec 71,"3 BHK Semi-Furnished - DLF Alameda, Sector 71","H:\All Properties Data\All Data\3 BHK Semi-Furnished - DLF Alameda, Sector 71",3 BHK,Semi-Furnished,Sector 71,DLF Alameda,
+Fully Furnished 1BHK,1 BHK Fully Furnished,H:\All Properties Data\All Data\1 BHK Fully Furnished,1 BHK,Fully Furnished,,,
+Raw 3BHK,3 BHK Raw,H:\All Properties Data\All Data\3 BHK Raw,3 BHK,Raw,,,
+Semi Furnished 2BHK,2 BHK Semi-Furnished,H:\All Properties Data\All Data\2 BHK Semi-Furnished,2 BHK,Semi-Furnished,,,
