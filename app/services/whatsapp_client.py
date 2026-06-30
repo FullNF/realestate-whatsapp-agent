@@ -73,3 +73,18 @@ async def notify_admin(text: str) -> None:
     if not settings.ADMIN_NOTIFY_PHONE:
         return
     await send_text_message(settings.ADMIN_NOTIFY_PHONE, f"[Agent] {text}")
+
+
+async def notify_team(text: str) -> None:
+    """
+    Sends an alert to every number in TEAM_NOTIFY_PHONES individually.
+    This is the practical stand-in for "post to our team group" — the
+    official WhatsApp Cloud API has no ability to send into a WhatsApp
+    group at all, so each team member gets their own copy instead.
+    """
+    phones = settings.team_notify_phones_list
+    if not phones:
+        logger.warning("notify_team called but no TEAM_NOTIFY_PHONES configured.")
+        return
+    for phone in phones:
+        await send_text_message(phone, f"🚨 [Needs human] {text}")

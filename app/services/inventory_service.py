@@ -70,7 +70,11 @@ def format_teaser(rows: list[dict]) -> str:
             price = item.get("priceRange") or "price on request"
             project = item.get("name")
             project_str = f" ({project})" if project else ""
-            tiers.append(f"{furnishing}: {price}{project_str}")
+            link = ""
+            prop_id = str(item.get("id", "")).strip()
+            if prop_id:
+                link = f" [photo/video link: {settings.PROPERTY_SHARE_BASE_URL}{prop_id}]"
+            tiers.append(f"{furnishing}: {price}{project_str}{link}")
         lines.append(f"- {location}, {ptype}: " + "; ".join(tiers))
     return "\n".join(lines)
 
