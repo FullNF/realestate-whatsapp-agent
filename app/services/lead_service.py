@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db.models import Lead, LeadControl, Message
 from app.prompts.system_prompt import EXTRACTION_SYSTEM_PROMPT, build_response_system_prompt
-from app.services import inventory_service, whatsapp_client
+from app.services import inventory_service, sheets_inventory, whatsapp_client
 from app.services.llm_client import chat_json
 
 logger = logging.getLogger(__name__)
@@ -152,7 +152,10 @@ async def process_incoming_message(
 
     # 5. Response call
     response_system_prompt = build_response_system_prompt(
-        mode, context_data=context_data, attempt_info=attempt_info
+        mode,
+        context_data=context_data,
+        attempt_info=attempt_info,
+        service_areas=sheets_inventory.get_service_areas(),
     )
     try:
         response = await chat_json(

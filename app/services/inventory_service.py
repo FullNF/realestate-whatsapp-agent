@@ -25,11 +25,12 @@ def _matches_area(row_location: str, area_text: str) -> bool:
 
 
 def find_matching_service_area(area_text: str) -> str | None:
-    """Returns the configured service-area name this text matches, or
-    None if it doesn't match any of your configured SERVICE_AREAS."""
+    """Returns the service area name (taken live from the sheet's
+    distinct locations) this text matches, or None if it doesn't match
+    any sector currently present in the Properties sheet."""
     if not area_text:
         return None
-    for area in settings.service_areas_list:
+    for area in sheets_inventory.get_service_areas():
         if _matches_area(area, area_text):
             return area
     return None

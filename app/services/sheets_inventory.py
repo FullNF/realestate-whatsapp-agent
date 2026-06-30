@@ -113,3 +113,19 @@ def get_all_properties() -> list[dict]:
         logger.exception("Failed to fetch properties from Google Sheet.")
         # Serve stale cache rather than nothing, if we have it
         return _cache["rows"] or []
+
+
+def get_service_areas() -> list[str]:
+    """
+    The service area list is no longer a hardcoded env var — it's
+    whatever distinct, non-blank `location` values currently exist in
+    the Properties sheet. Add a new sector there and the agent starts
+    treating it as in-area automatically, no redeploy needed.
+    """
+    rows = get_all_properties()
+    seen: dict[str, str] = {}  # lowercase -> original-cased first seen
+    for r in rows:
+        loc = str(r.get("location", "")).strip()
+        if loc and loc.lower() not in seen:
+            seen[loc.lower()] = loc
+    return list(seen.values())

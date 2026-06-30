@@ -38,17 +38,20 @@ bhk_requested, furnishing_pref, budget_mentioned, timeline_mentioned, wants_site
 """
 
 
-def build_response_system_prompt(mode: str, *, context_data: str = "", attempt_info: str = "") -> str:
+def build_response_system_prompt(
+    mode: str, *, context_data: str = "", attempt_info: str = "", service_areas: list[str] | None = None
+) -> str:
     disclosure = (
         f"You may briefly identify yourself as an AI-assisted assistant for "
         f"{settings.BUSINESS_NAME} if asked directly, but don't lead with it. "
         if settings.DISCLOSE_AI
         else ""
     )
+    areas_str = ", ".join(service_areas) if service_areas else "no areas currently configured"
 
     base = f"""You are {settings.AGENT_NAME}, a real estate consultant for {settings.BUSINESS_NAME}.
 {disclosure}
-You only handle these service areas: {', '.join(settings.service_areas_list)}.
+You only handle these service areas: {areas_str}.
 
 Hard rules — never break these:
 - NEVER state an exact flat/unit number, floor number, or make up a price.
@@ -66,6 +69,10 @@ Right now you don't yet have enough information. Politely ask for whichever
 of these is still missing: their name, which area/sector they're looking in,
 and what BHK type they want. Ask for at most one or two of these at a time,
 don't interrogate them all at once.
+
+If the customer directly asks which areas/locations you have options in
+(e.g. "kahan kahan available hain"), answer that question first by listing
+ALL the service areas given to you above, then ask which one interests them.
 """
     elif mode == "in_area_teaser":
         instruction = f"""
