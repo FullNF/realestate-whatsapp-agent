@@ -89,13 +89,15 @@
 </section>
 
 <section>
-  <h2>Area inventory</h2>
-  <p class="sub">CSV columns: sector, project_name, bhk_type, available_label, price_raw, price_semi_furnished, price_fully_furnished, notes. Uploading replaces the whole table.</p>
+  <h2>Live data check (from Google Sheet)</h2>
+  <p class="sub">This shows exactly what the agent is currently reading — use it to confirm the Sheet connection and header mapping are working.</p>
   <div class="row-actions" style="margin-bottom:12px">
-    <input type="file" id="csvFile" accept=".csv">
-    <button onclick="uploadInventory()">Upload &amp; replace</button>
+    <button onclick="loadLiveData()">Refresh live data</button>
   </div>
-  <div id="inventoryTable" class="empty">Connect with your admin key to load inventory.</div>
+  <h3 style="font-size:13px;color:var(--muted);margin:16px 0 8px">Detected service areas</h3>
+  <div id="serviceAreasBox" class="empty">Click "Refresh live data" to check.</div>
+  <h3 style="font-size:13px;color:var(--muted);margin:16px 0 8px">Property rows</h3>
+  <div id="inventoryTable" class="empty">Click "Refresh live data" to check.</div>
 </section>
 
 <div class="toast" id="toast"></div>
@@ -123,7 +125,7 @@ async function saveKeyAndLoad() {
   try {
     await loadLeads();
     await loadExceptions();
-    await loadInventory();
+    await loadLiveData();
     document.getElementById('connStatus').textContent = 'Connected';
   } catch (e) {
     document.getElementById('connStatus').textContent = 'Invalid key or connection failed';
@@ -193,35 +195,37 @@ function resumeLeadPrompt() {
   resumeLead(phone);
 }
 
-async function loadInventory() {
-  const rows = await api('/inventory');
-  const el = document.getElementById('inventoryTable');
-  if (!rows.length) { el.innerHTML = '<p class="empty">No inventory uploaded yet.</p>'; return; }
-  let html = '<table><tr><th>Sector</th><th>Project</th><th>BHK</th><th>Available</th><th>Raw</th><th>Semi</th><th>Fully</th></tr>';
-  for (const r of rows) {
-    html += `<tr><td>${r.sector}</td><td>${r.project_name || '-'}</td><td>${r.bhk_type}</td>
-      <td>${r.available_label || '-'}</td><td>${r.price_raw || '-'}</td>
-      <td>${r.price_semi_furnished || '-'}</td><td>${r.price_fully_furnished || '-'}</td></tr>`;
-  }
-  html += '</table>';
-  el.innerHTML = html;
-}
+async function loadLiveData() {
+  const areasBox = document.getElementById('serviceAreasBox');
+  const tableBox = document.getElementById('inventoryTable');
+  areasBox.innerHTML = '<p class="empty">Loading...</p>';
+  tableBox.innerHTML = '<p class="empty">Loading...</p>';
 
-async function uploadInventory() {
-  const fileInput = document.getElementById('csvFile');
-  if (!fileInput.files.length) return showToast('Choose a CSV file first.');
-  const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
-  const key = getKey();
-  const res = await fetch('/admin/inventory/import', {
-    method: 'POST',
-    headers: { 'X-Admin-Key': key },
-    body: formData,
-  });
-  if (!res.ok) return showToast('Upload failed.');
-  const data = await res.json();
-  showToast(`Imported ${data.rows} rows.`);
-  loadInventory();
+  try {
+    const rows = await api('/inventory');
+
+    if (!rows.length) {
+      areasBox.innerHTML = '<p class="empty">No rows found — check the Sheet connection or header names.</p>';
+      tableBox.innerHTML = '<p class="empty">No property rows found.</p>';
+      return;
+    }
+
+    const areas = [...new Set(rows.map(r => r.location).filter(Boolean))];
+    areasBox.innerHTML = areas.length
+      ? areas.map(a => `<span style="display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin:0 6px 6px 0;font-size:13px">${a}</span>`).join('')
+      : '<p class="empty">No locations detected in the rows.</p>';
+
+    let html = '<table><tr><th>ID</th><th>Name</th><th>Location</th><th>Type</th><th>Furnishing</th><th>Price Range</th></tr>';
+    for (const r of rows) {
+      html += `<tr><td>${(r.id || '').slice(0, 8)}</td><td>${r.name || '-'}</td><td>${r.location || '-'}</td>
+        <td>${r.propertyType || '-'}</td><td>${r.furnishing || '-'}</td><td>${r.priceRange || '-'}</td></tr>`;
+    }
+    html += '</table>';
+    tableBox.innerHTML = html;
+  } catch (e) {
+    areasBox.innerHTML = '<p class="empty">Failed to load — check your admin key and that the service is awake.</p>';
+    tableBox.innerHTML = '';
+  }
 }
 </script>
 </body>
