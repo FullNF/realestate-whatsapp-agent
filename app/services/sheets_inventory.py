@@ -31,6 +31,31 @@ _SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 _cache: dict = {"rows": None, "fetched_at": 0.0}
 _CACHE_TTL_SECONDS = 120  # re-fetch at most every 2 minutes
 
+# The sheet's header row contains human-readable labels (as written by the
+# CRM, see server/src/constants/sheetSchema.js PROPERTIES_COLUMNS) rather
+# than the internal field keys our code uses. Map label -> key here so a
+# header cell that says "Location" gets read as the "location" field, etc.
+_LABEL_TO_KEY = {
+    "property id": "id",
+    "property name": "name",
+    "location": "location",
+    "property type": "propertyType",
+    "furnishing": "furnishing",
+    "price range": "priceRange",
+    "description": "description",
+    "created by": "createdBy",
+    "created at": "createdAt",
+}
+
+
+def _header_to_key(raw_header: str) -> str:
+    """Resolves a sheet header cell to our internal field key. Falls back
+    to the raw header text (trimmed) if it isn't a recognized label, so
+    unexpected extra columns don't crash anything — they just won't be
+    matched by any of our r.get("location")-style lookups."""
+    normalized = raw_header.strip().lower()
+    return _LABEL_TO_KEY.get(normalized, raw_header.strip())
+
 
 def _normalize_private_key(raw: str) -> str:
     """
@@ -76,13 +101,15 @@ def _fetch_rows() -> list[dict]:
 
     header_row = all_values[0]
     seen: set[str] = set()
-    col_map: dict[int, str] = {}  # column index -> header name
+    col_map: dict[int, str] = {}  # column index -> internal field key
     for idx, raw_header in enumerate(header_row):
-        header = (raw_header or "").strip()
-        if not header or header in seen:
+        if not (raw_header or "").strip():
             continue
-        seen.add(header)
-        col_map[idx] = header
+        key = _header_to_key(raw_header)
+        if key in seen:
+            continue
+        seen.add(key)
+        col_map[idx] = key
 
     records = []
     for row in all_values[1:]:
