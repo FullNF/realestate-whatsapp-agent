@@ -131,10 +131,10 @@ async def process_incoming_message(
     else:
         matched_area = inventory_service.find_matching_service_area(lead.area_requested)
         if matched_area:
-            rows = inventory_service.get_teaser_rows(db, matched_area, lead.bhk_requested)
+            rows = inventory_service.get_teaser_rows(matched_area, lead.bhk_requested)
             context_data = inventory_service.format_teaser(rows)
             mode = "in_area_teaser"
-            if wants_site_visit:
+            if wants_site_visit and lead.status != "site_visit_requested":
                 lead.status = "site_visit_requested"
                 await whatsapp_client.notify_admin(
                     f"Hot lead! {lead.name or phone} wants a site visit "
@@ -148,7 +148,7 @@ async def process_incoming_message(
             else:
                 mode = "out_of_area_redirect"
                 attempt_info = f"{lead.out_of_area_attempts} of {settings.OUT_OF_AREA_MAX_ATTEMPTS}"
-                context_data = inventory_service.get_alternatives_teaser(db, lead.area_requested)
+                context_data = inventory_service.get_alternatives_teaser(lead.area_requested)
 
     # 5. Response call
     response_system_prompt = build_response_system_prompt(

@@ -64,21 +64,6 @@ class Message(Base):
     lead: Mapped["Lead"] = relationship(back_populates="messages")
 
 
-class AreaInventory(Base):
-    __tablename__ = "area_inventory"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    sector: Mapped[str] = mapped_column(String(120), index=True)
-    project_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
-    bhk_type: Mapped[str] = mapped_column(String(40))
-    available_label: Mapped[str | None] = mapped_column(String(60), nullable=True)  # e.g. "5-6 units"
-    price_raw: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    price_semi_furnished: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    price_fully_furnished: Mapped[str | None] = mapped_column(String(60), nullable=True)
-    notes: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-
-
 class LeadControl(Base):
     """The exception list: pause the AI agent for a specific phone number."""
 

@@ -30,8 +30,10 @@ async def send_text_message(to_phone: str, body: str) -> bool:
         "type": "text",
         "text": {"body": body},
     }
+    timeout = httpx.Timeout(connect=10.0, read=15.0, write=10.0, pool=5.0)
+    transport = httpx.AsyncHTTPTransport(retries=2)
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
+        async with httpx.AsyncClient(timeout=timeout, transport=transport) as client:
             resp = await client.post(_BASE_URL, headers=headers, json=payload)
         if resp.status_code >= 400:
             logger.error("WhatsApp send failed (%s): %s", resp.status_code, resp.text)

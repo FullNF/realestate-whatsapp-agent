@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     DISCLOSE_AI: bool = True
     DEFAULT_LANGUAGE_MODE: str = "auto"  # auto | en | hi | hinglish
 
+    # --- Google Sheets (live property inventory, same sheet the CRM uses) ---
+    GOOGLE_SHEET_ID: str = ""
+    SHEET_TAB_PROPERTIES: str = "Properties"
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: str = ""
+    GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: str = ""
+
     # --- Admin ---
     ADMIN_API_KEY: str = "change-this-admin-key"
     # Optional: your own WhatsApp number (with country code, no +) to get

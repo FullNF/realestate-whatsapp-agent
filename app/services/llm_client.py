@@ -27,6 +27,11 @@ async def chat_json(system_prompt: str, user_prompt: str) -> dict:
     Calls Groq with response_format=json_object so the model is forced to
     return valid JSON we can parse directly — used for both the
     extraction call and the reply-generation call.
+
+    Render's free-tier outbound networking occasionally has transient
+    connection failures (ConnectTimeout) that resolve on retry — this is
+    a known gotcha, not a Groq problem. `AsyncHTTPTransport(retries=2)`
+    retries failed connection attempts automatically before giving up.
     """
     headers = {
         "Authorization": f"Bearer {settings.GROQ_API_KEY}",
@@ -42,7 +47,10 @@ async def chat_json(system_prompt: str, user_prompt: str) -> dict:
         "response_format": {"type": "json_object"},
     }
 
-    async with httpx.AsyncClient(timeout=30) as client:
+    timeout = httpx.Timeout(connect=10.0, read=20.0, write=10.0, pool=5.0)
+    transport = httpx.AsyncHTTPTransport(retries=2)
+
+    async with httpx.AsyncClient(timeout=timeout, transport=transport) as client:
         resp = await client.post(_GROQ_URL, headers=headers, json=payload)
 
     if resp.status_code >= 400:
