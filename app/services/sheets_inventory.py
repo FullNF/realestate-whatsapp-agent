@@ -32,12 +32,27 @@ _cache: dict = {"rows": None, "fetched_at": 0.0}
 _CACHE_TTL_SECONDS = 120  # re-fetch at most every 2 minutes
 
 
+def _normalize_private_key(raw: str) -> str:
+    """
+    Defensive cleanup for common copy-paste artifacts when a PEM private
+    key passes through an env var UI: surrounding quotes, literal \\n
+    escape sequences, and Windows-style \\r\\n line endings.
+    """
+    key = raw.strip()
+    if len(key) >= 2 and key[0] == key[-1] and key[0] in ("'", '"'):
+        key = key[1:-1]
+    key = key.replace("\\r\\n", "\n").replace("\\n", "\n").replace("\r\n", "\n")
+    if not key.endswith("\n"):
+        key += "\n"
+    return key
+
+
 def _get_client() -> gspread.Client:
     creds = Credentials.from_service_account_info(
         {
             "type": "service_account",
-            "client_email": settings.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-            "private_key": settings.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace("\\n", "\n"),
+            "client_email": settings.GOOGLE_SERVICE_ACCOUNT_EMAIL.strip(),
+            "private_key": _normalize_private_key(settings.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY),
             "token_uri": "https://oauth2.googleapis.com/token",
         },
         scopes=_SCOPES,
