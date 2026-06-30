@@ -46,6 +46,19 @@ async def list_exceptions(db: Session = Depends(get_db)) -> list[dict]:
     ]
 
 
+@router.post("/leads/{phone}/reset")
+async def reset_lead(phone: str, db: Session = Depends(get_db)) -> dict:
+    """Wipes a lead's conversation history and captured fields so you can
+    test from a clean slate without the AI seeing old messages. Does NOT
+    touch the exception-list pause state."""
+    lead = db.execute(select(Lead).where(Lead.phone == phone)).scalar_one_or_none()
+    if lead is None:
+        return {"status": "no_existing_lead", "phone": phone}
+    db.delete(lead)
+    db.commit()
+    return {"status": "reset", "phone": phone}
+
+
 @router.post("/leads/{phone}/pause")
 async def pause_lead(phone: str, reason: str = "", db: Session = Depends(get_db)) -> dict:
     control = db.execute(select(LeadControl).where(LeadControl.phone == phone)).scalar_one_or_none()

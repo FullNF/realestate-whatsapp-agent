@@ -70,6 +70,10 @@
 
 <section>
   <h2>Leads</h2>
+  <div class="row-actions" style="margin-bottom:12px">
+    <input type="text" id="resetPhone" placeholder="Phone number to reset (e.g. 919876543210)" style="width:260px">
+    <button class="danger" onclick="resetLead()">Reset conversation</button>
+  </div>
   <div id="leadsTable" class="empty">Connect with your admin key to load leads.</div>
 </section>
 
@@ -124,6 +128,14 @@ async function saveKeyAndLoad() {
   } catch (e) {
     document.getElementById('connStatus').textContent = 'Invalid key or connection failed';
   }
+}
+
+async function resetLead() {
+  const phone = document.getElementById('resetPhone').value.trim();
+  if (!phone) return showToast('Enter a phone number first.');
+  await api(`/leads/${phone}/reset`, { method: 'POST' });
+  showToast('Conversation reset for ' + phone);
+  loadLeads();
 }
 
 async function loadLeads() {
