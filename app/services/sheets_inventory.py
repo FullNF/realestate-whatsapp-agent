@@ -64,7 +64,33 @@ def _fetch_rows() -> list[dict]:
     client = _get_client()
     sheet = client.open_by_key(settings.GOOGLE_SHEET_ID)
     ws = sheet.worksheet(settings.SHEET_TAB_PROPERTIES)
-    records = ws.get_all_records()  # uses row 1 as headers automatically
+
+    # Not using ws.get_all_records() here on purpose: it requires every
+    # header in row 1 to be unique and non-blank, which real-world sheets
+    # often violate (stray blank columns, accidental duplicate headers).
+    # We parse manually instead, keeping only the first occurrence of
+    # each non-blank header name.
+    all_values = ws.get_all_values()
+    if not all_values:
+        return []
+
+    header_row = all_values[0]
+    seen: set[str] = set()
+    col_map: dict[int, str] = {}  # column index -> header name
+    for idx, raw_header in enumerate(header_row):
+        header = (raw_header or "").strip()
+        if not header or header in seen:
+            continue
+        seen.add(header)
+        col_map[idx] = header
+
+    records = []
+    for row in all_values[1:]:
+        record = {}
+        for idx, header in col_map.items():
+            record[header] = row[idx] if idx < len(row) else ""
+        records.append(record)
+
     # Only keep rows that actually have an id (skips blank trailing rows)
     return [r for r in records if str(r.get("id", "")).strip()]
 
