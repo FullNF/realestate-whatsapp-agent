@@ -16,6 +16,28 @@ logger = logging.getLogger(__name__)
 _BASE_URL = f"https://graph.facebook.com/{settings.META_API_VERSION}/{settings.META_PHONE_NUMBER_ID}/messages"
 
 
+async def mark_read_with_typing(wa_message_id: str) -> None:
+    """Marks the incoming message as read (blue ticks) and shows the
+    WhatsApp "typing..." indicator while we're composing a reply — purely
+    cosmetic, but it's what makes the delay before our reply feel like a
+    person typing instead of an app being slow."""
+    headers = {
+        "Authorization": f"Bearer {settings.META_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "status": "read",
+        "message_id": wa_message_id,
+        "typing_indicator": {"type": "text"},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            await client.post(_BASE_URL, headers=headers, json=payload)
+    except httpx.HTTPError:
+        pass  # purely cosmetic, never worth failing the request over
+
+
 async def send_text_message(to_phone: str, body: str) -> bool:
     """Sends a free-form text reply. Only valid inside an open 24h
     customer-service window (i.e. the customer messaged you first/recently)

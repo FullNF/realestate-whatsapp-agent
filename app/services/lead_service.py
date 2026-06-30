@@ -13,6 +13,7 @@ Flow per message:
   6. Send it, persist everything, optionally notify the admin.
 """
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 
@@ -102,6 +103,8 @@ async def process_incoming_message(
     db.add(Message(lead_id=lead.id, direction="in", wa_message_id=wa_message_id, body=text))
     db.flush()
 
+    await whatsapp_client.mark_read_with_typing(wa_message_id)
+
     transcript = _build_transcript(db, lead)
 
     # 3. Extraction call
@@ -172,6 +175,13 @@ async def process_incoming_message(
         reply_text = "Sorry, ek baar phir bata sakte hain aap kya dhund rahe hain?"
 
     # 6. Send + persist
+    # Simulate human typing/thinking time so replies don't feel instant —
+    # a real person reads the message, thinks, then types. Scaled by
+    # reply length (~0.35s per word), clamped to a sane range.
+    word_count = len(reply_text.split())
+    typing_delay = min(max(1.5, 1.0 + word_count * 0.35), 7.0)
+    await asyncio.sleep(typing_delay)
+
     sent = await whatsapp_client.send_text_message(phone, reply_text)
     if sent:
         db.add(Message(lead_id=lead.id, direction="out", wa_message_id=None, body=reply_text))
